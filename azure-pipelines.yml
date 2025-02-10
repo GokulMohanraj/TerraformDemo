@@ -1,19 +1,18 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
-
+  branches:
+    include:
+      - main    # Trigger on code merges to the 'master' branch
 pool:
-  vmImage: ubuntu-latest
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  name: Default        # ✅ Use self-hosted agent pool
+stages:
+  - stage: List_Files
+    displayName: "List Files on Merge to Master"
+    jobs:
+      - job: Run_LS_Command
+        displayName: "Run ls Command"
+        steps:
+          - checkout: self  # Checkout the repository code
+          - script: |
+              echo "Listing files in the repository:"
+              ls -la         # The 'ls' command to list files
+            displayName: "Execute ls -la"
