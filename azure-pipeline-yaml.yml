@@ -24,10 +24,13 @@ stages:
     jobs:
       - job: TerraformApplyJob
         steps:
-          - task: AWSCLI@1
-            inputs:
-              awsConnection: $(AWS_SERVICE_CONNECTION)
-              regionName: 'ap-south-1' 
+          - script: |
+              echo "Setting up AWS environment variables..."
+              export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+              export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
+              export AWS_DEFAULT_REGION='ap-south-1'
+              echo "AWS environment variables set."
+              displayName: 'Set AWS Credentials' 
 
           # Terraform Init
           - script: |
