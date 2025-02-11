@@ -2,13 +2,14 @@ trigger:
   branches:
     include:
       - master
-
+pool:
+  name: Default
+variables:
+  AWS_SERVICE_CONNECTION: 'AWS-SC'
 stages:
   - stage: InstallTerraform
     jobs:
       - job: InstallTerraformJob
-        pool:
-          name: Default
         steps:
           - script: |
               # Install Terraform
@@ -22,13 +23,11 @@ stages:
     dependsOn: InstallTerraform 
     jobs:
       - job: TerraformApplyJob
-        pool:
-          name: Default
         steps:
-          - task: AWSCLI@1
+          - task: AWSServiceConnection@1
             inputs:
-              awsCredentials: 'AWS-SC'
-              regionName: 'ap-south-1'
+              awsConnection: $(AWS_SERVICE_CONNECTION)
+              regionName: 'ap-south-1' 
 
           # Terraform Init
           - script: |
