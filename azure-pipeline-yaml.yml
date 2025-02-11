@@ -3,20 +3,31 @@ trigger:
     include:
       - master
 
-pool:
-  vmImage: Default
-
-steps:
-  - script: |
-      wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-      sudo apt update && sudo apt install terraform -y
-      terraform -version
-    displayName: 'Install Terraform'
+stages:
+  - stage: InstallTerraform
+    jobs:
+      - job: InstallTerraformJob
+        pool:
+          vmImage: Default
+        steps:
+          - script: |
+              # Install Terraform
+              wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+              sudo apt update && sudo apt install terraform -y
+              terraform -version  # Verify Terraform installation
+            displayName: 'Install Terraform'
   
-  - script: |
-      terraform init  # Initialize Terraform
-      terraform plan  # Generate a Terraform execution plan
-      terraform apply -auto-approve  # Apply the plan without confirmation
-    displayName: 'Terraform Apply'
-    workingDirectory: $(Build.SourcesDirectory)  # Specify the working directory for Terraform
+  - stage: TerraformApply
+    dependsOn: InstallTerraform 
+    jobs:
+      - job: TerraformApplyJob
+        pool:
+          vmImage: Default
+        steps:
+          - script: |
+              terraform init  # Initialize Terraform
+              terraform plan  # Generate a Terraform execution plan
+              terraform apply -auto-approve  # Apply the plan without confirmation
+            displayName: 'Terraform Apply'
+            workingDirectory: $(Build.SourcesDirectory) 
