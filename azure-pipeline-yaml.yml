@@ -1,16 +1,19 @@
-trigger
+trigger:
   branches:
     include:
-      - master
-  pools:
-    vmImage: 'ubuntu-latest'
-  steps:
-    -task: UseTerraform@0
-      inputs:
-        version: '1.10.5'
-    -script: |
-        terraform init
-        terraform plan
-        terraform apply -auto-approve
+      - master  # The pipeline will trigger when changes are pushed to the 'master' branch
+
+pool:
+  vmImage: 'ubuntu-latest'  # Use the Ubuntu VM image to run the pipeline
+
+steps:
+  - task: UseTerraform@0
+    inputs:
+      version: '1.10.5'  # Specify the version of Terraform to use
+
+  - script: |
+      terraform init  # Initialize Terraform
+      terraform plan  # Generate a Terraform execution plan
+      terraform apply -auto-approve  # Apply the plan without confirmation
     displayName: 'Terraform Apply'
-``` workingDircetory: $(Build.SourcesDirectory)
+    workingDirectory: $(Build.SourcesDirectory)  # Specify the working directory for Terraform
