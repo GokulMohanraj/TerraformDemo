@@ -27,7 +27,7 @@ stages:
         steps:
           - task: AWSServiceConnection@1
             inputs:
-              awsServiceConnection: 'AWS-connection'
+              ServiceConnection: 'AWS-connection'
 
           # Terraform Init
           - script: |
