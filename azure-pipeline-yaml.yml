@@ -8,7 +8,7 @@ stages:
     jobs:
       - job: InstallTerraformJob
         pool:
-          vmImage: Default
+          name: Default
         steps:
           - script: |
               # Install Terraform
@@ -23,7 +23,7 @@ stages:
     jobs:
       - job: TerraformApplyJob
         pool:
-          vmImage: Default
+          name: Default
         steps:
           - script: |
               terraform init  # Initialize Terraform
