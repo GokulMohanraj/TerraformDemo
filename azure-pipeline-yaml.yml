@@ -6,6 +6,7 @@ pool:
   name: Default
 variables:
   AWS_SERVICE_CONNECTION: 'AWS-SC'
+  AWS_DEFAULT_REGION: 'ap-south-1'
 stages:
   - stage: InstallTerraform
     jobs:
@@ -28,7 +29,7 @@ stages:
               echo "Setting up AWS environment variables..."
               export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
               export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
-              export AWS_DEFAULT_REGION='ap-south-1'
+              export AWS_DEFAULT_REGION='$(AWS_DEFAULT_REGION)'
               echo "AWS environment variables set."
               displayName: 'Set AWS Credentials' 
 
