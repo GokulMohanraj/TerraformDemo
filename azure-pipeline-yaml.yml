@@ -35,3 +35,7 @@ stages:
               terraform apply -auto-approve  # Apply the plan without confirmation
             displayName: 'Terraform Apply'
             workingDirectory: $(Build.SourcesDirectory) 
+            env:
+              AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID) 
+              AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
+              AWS_REGION: ap-south-1  
