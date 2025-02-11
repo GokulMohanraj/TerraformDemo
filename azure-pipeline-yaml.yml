@@ -1,0 +1,16 @@
+trigger
+  branches:
+    include:
+      - master
+  pools:
+    vmImage: 'ubuntu-latest'
+  steps:
+    -task: UseTerraform@0
+      inputs:
+        version: '1.10.5'
+    -script: |
+        terraform init
+        terraform plan
+        terraform apply -auto-approve
+    displayName: 'Terraform Apply'
+``` workingDircetory: $(Build.SourcesDirectory)
