@@ -4,7 +4,7 @@ trigger:
       - master
 
 pool:
-  vmImage: 'AWS-EC2'
+  name: 'AWS-EC2'
 
 steps:
   - script: |
