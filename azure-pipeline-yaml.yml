@@ -25,6 +25,10 @@ stages:
         pool:
           name: Default
         steps:
+          - task: AWSCLI@1  # Use AWS CLI task with the AWS service connection
+            inputs:
+              awsCredentials: AWS-connection
+              regionName: ap-south-1
           - script: |
               terraform init  # Initialize Terraform
               terraform plan  # Generate a Terraform execution plan
