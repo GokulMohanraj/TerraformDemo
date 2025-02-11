@@ -25,17 +25,21 @@ stages:
         pool:
           name: Default
         steps:
+          - task: AWSServiceConnection@1
+            inputs:
+              awsServiceConnection: 'AWS-connection'
+
+          # Terraform Init
           - script: |
-              export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
-              export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
-              export AWS_REGION=ap-south-1
+              terraform init
+            displayName: 'Initialize Terraform'
+
+          # Terraform Plan
           - script: |
-              terraform init  # Initialize Terraform
-              terraform plan  # Generate a Terraform execution plan
-              terraform apply -auto-approve  # Apply the plan without confirmation
+              terraform plan -out=tfplan
+            displayName: 'Terraform Plan'
+
+          # Terraform Apply
+          - script: |
+              terraform apply -auto-approve tfplan
             displayName: 'Terraform Apply'
-            workingDirectory: $(Build.SourcesDirectory) 
-            env:
-              AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID) 
-              AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-              AWS_REGION: ap-south-1  
