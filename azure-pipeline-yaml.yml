@@ -5,7 +5,7 @@ trigger:
 pool:
   name: Default
 variables:
-  AWS: 'AWS-SC'
+  AWS_SERVICE_CONNECTION: 'AWS-SC'
 stages:
   - stage: InstallTerraform
     jobs:
@@ -24,9 +24,9 @@ stages:
     jobs:
       - job: TerraformApplyJob
         steps:
-          - task: AWS@1
+          - task: AWSCLI@1
             inputs:
-              awsConnection: $(AWS)
+              awsConnection: $(AWS_SERVICE_CONNECTION)
               regionName: 'ap-south-1' 
 
           # Terraform Init
