@@ -9,4 +9,7 @@ resource "aws_instance" "demo" {
   tags = {
     Name = "Demo"
   }
+  lifecycle {
+    prevent_destroy = false
+  }
 }
