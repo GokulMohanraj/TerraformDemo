@@ -2,11 +2,15 @@ trigger:
   branches:
     include:
       - master
+
 pool:
   name: Default
+
 variables:
-  AWS_SERVICE_CONNECTION: 'AWS-SC'
-  AWS_DEFAULT_REGION: 'ap-south-1'
+  AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)  # Define your AWS access key ID as a variable
+  AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)  # Define your AWS secret access key as a variable
+  AWS_DEFAULT_REGION: 'ap-south-1'  # Define your AWS region
+
 stages:
   - stage: InstallTerraform
     jobs:
@@ -21,15 +25,18 @@ stages:
             displayName: 'Install Terraform'
   
   - stage: TerraformApply
-    dependsOn: InstallTerraform 
+    dependsOn: InstallTerraform
     jobs:
       - job: TerraformApplyJob
         steps:
-          - task: AWSCLI@1  # AWS CLI task to set up AWS credentials
+          # AWSCLI task to configure AWS credentials directly via environment variables
+          - task: AWSCLI@1  # AWS CLI task to authenticate AWS
             inputs:
-              awsCredentials: 'AWS-SC'  # Reference the AWS service connection here
-              regionName: 'ap-south-1'  # Specify your AWS region
-              awsCommand: 'sts get-caller-identity'  # This verifies that the AWS CLI can successfully access AWS
+              regionName: $(AWS_DEFAULT_REGION)  # Use the AWS region variable
+              awsCommand: 'sts get-caller-identity'  # Verify AWS credentials
+            env:
+              AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)  # Set AWS access key from variables
+              AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)  # Set AWS secret key from variables
               displayName: 'Configure AWS CLI'
 
           # Terraform Init
