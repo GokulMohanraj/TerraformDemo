@@ -25,13 +25,12 @@ stages:
     jobs:
       - job: TerraformApplyJob
         steps:
-          - script: |
-              echo "Setting up AWS environment variables..."
-              export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
-              export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
-              export AWS_DEFAULT_REGION='$(AWS_DEFAULT_REGION)'
-              echo "AWS environment variables set."
-              displayName: 'Set AWS Credentials' 
+          - task: AWSCLI@1  # AWS CLI task to set up AWS credentials
+            inputs:
+              awsCredentials: 'AWS-SC'  # Reference the AWS service connection here
+              regionName: 'us-east-1'  # Specify your AWS region
+              awsCommand: 'sts get-caller-identity'  # This verifies that the AWS CLI can successfully access AWS
+              displayName: 'Configure AWS CLI'
 
           # Terraform Init
           - script: |
