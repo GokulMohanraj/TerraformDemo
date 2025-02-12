@@ -28,7 +28,7 @@ stages:
           - task: AWSCLI@1  # AWS CLI task to set up AWS credentials
             inputs:
               awsCredentials: 'AWS-SC'  # Reference the AWS service connection here
-              regionName: 'us-east-1'  # Specify your AWS region
+              regionName: 'ap-south-1'  # Specify your AWS region
               awsCommand: 'sts get-caller-identity'  # This verifies that the AWS CLI can successfully access AWS
               displayName: 'Configure AWS CLI'
 
