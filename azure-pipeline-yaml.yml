@@ -7,9 +7,9 @@ pool:
   name: Default
 
 variables:
-  AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)  # Define your AWS access key ID as a variable
-  AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)  # Define your AWS secret access key as a variable
-  AWS_DEFAULT_REGION: 'ap-south-1'  # Define your AWS region
+  AWS_ACCESS_KEY_ID: $(Access_key)
+  AWS_SECRET_ACCESS_KEY: $(Secret_key)
+  AWS_DEFAULT_REGION: 'ap-south-1'
 
 stages:
   - stage: InstallTerraform
@@ -31,8 +31,8 @@ stages:
         steps:
           # Set AWS credentials via environment variables directly within the script
           - script: |
-              export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
-              export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
+              export AWS_ACCESS_KEY_ID=$(Access_key)
+              export AWS_SECRET_ACCESS_KEY=$(Secret_key)
               export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
 
               # Verify AWS CLI credentials
