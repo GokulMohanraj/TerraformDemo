@@ -7,7 +7,7 @@ resource "aws_instance" "demo" {
   instance_type = var.instance_type
 
   tags = {
-    Name = "Demo"
+    Name = "Demo_created_by_Azure_DevOps_pipeline"
   }
   lifecycle {
     prevent_destroy = false
