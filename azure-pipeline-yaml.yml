@@ -105,20 +105,10 @@ stages:
         steps:
           # Sleep for 5 minutes (300 seconds)
           - script: |
-              echo "Waiting for 5 minutes before requesting manual approval for destruction..."
+              echo "Waiting for 5 minutes before approval for destruction..."
               sleep 300  # Sleep for 5 minutes (300 seconds)
             displayName: 'Wait for 5 Minutes'
-
-          # Manual Approval for Destroying Resources
-          - task: ManualValidation@0
-            inputs:
-              notifyUsers: |
-                $(thegokulraj@gmail.com)
-              instructions: 'Please review the resources created by Terraform. Approve or reject the destruction of resources.'
-            displayName: 'Manual Approval Before Destruction'
-
           # Destroy Terraform Resources
           - script: |
               terraform destroy -auto-approve
             displayName: 'Destroy Terraform Resources'
-            condition: succeededOrFailed()  # Ensure it runs only after manual approval
