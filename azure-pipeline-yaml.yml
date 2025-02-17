@@ -110,7 +110,7 @@ stages:
             displayName: 'Wait for 5 Minutes'
 
           # Manual Approval for Destroying Resources
-          - task: ManualIntervention
+          - task: ManualIntervention@2
             inputs:
               notificationLevel: 'Critical'
               instructions: 'Please review the resources created by Terraform. Approve or reject the destruction of resources.'
