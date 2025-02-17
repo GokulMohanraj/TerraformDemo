@@ -9,7 +9,4 @@ resource "aws_instance" "demo" {
   tags = {
     Name = "Demo_created_by_Azure_DevOps_pipeline"
   }
-  lifecycle {
-    prevent_destroy = false
-  }
 }
