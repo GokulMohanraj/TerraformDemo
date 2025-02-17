@@ -12,9 +12,9 @@ variables:
   AWS_DEFAULT_REGION: 'ap-south-1'
 
 stages:
-  - stage: InstallAndApplyTerraform
+  # Stage to Install Terraform
+  - stage: InstallTerraform
     jobs:
-      # Job to Install Terraform
       - job: InstallTerraformJob
         steps:
           - script: |
@@ -25,34 +25,42 @@ stages:
               terraform -version  # Verify Terraform installation
             displayName: 'Install Terraform'
 
-      # Job to Install AWS CLI v2
+  # Stage to Install AWS CLI
+  - stage: InstallAWSCLI
+    jobs:
       - job: InstallAWSCLIJob
-        dependsOn: InstallTerraformJob  # Make sure AWS CLI installs after Terraform
         steps:
           - script: |
-              echo "Installing AWS CLI v2"
-              # Update the package index
-              sudo apt update
+              # Check if AWS CLI is installed
+              if ! command -v aws &> /dev/null
+              then
+                echo "AWS CLI not found, installing it..."
+                # Update the package index
+                sudo apt update
 
-              # Install dependencies
-              sudo apt install unzip -y
+                # Install dependencies
+                sudo apt install unzip -y
 
-              # Download the AWS CLI version 2 installer
-              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                # Download the AWS CLI version 2 installer
+                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 
-              # Unzip the installer
-              unzip awscliv2.zip
+                # Unzip the installer
+                unzip awscliv2.zip
 
-              # Run the installer
-              sudo ./aws/install
+                # Run the installer
+                sudo ./aws/install
 
-              # Verify AWS CLI installation
-              aws --version
-            displayName: 'Install AWS CLI v2'
+                # Verify AWS CLI installation
+                aws --version
+              else
+                echo "AWS CLI is already installed."
+              fi
+            displayName: 'Install AWS CLI v2 if not already installed'
 
-      # Job to Configure AWS CLI
+  # Stage to Configure AWS CLI
+  - stage: ConfigureAWSCLI
+    jobs:
       - job: ConfigureAWSCLIJob
-        dependsOn: InstallAWSCLIJob  # Ensure this job runs after AWS CLI is installed
         steps:
           - script: |
               echo "Configuring AWS CLI with provided credentials"
@@ -69,9 +77,10 @@ stages:
               aws sts get-caller-identity
             displayName: 'Configure AWS CLI'
 
-      # Job to Initialize and Apply Terraform
+  # Stage to Initialize and Apply Terraform
+  - stage: TerraformApply
+    jobs:
       - job: TerraformApplyJob
-        dependsOn: ConfigureAWSCLIJob
         steps:
           # Terraform Init
           - script: |
