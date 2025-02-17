@@ -14,9 +14,9 @@ variables:
 stages:
   - stage: InstallAndApplyTerraform
     jobs:
-      - job: InstallAndApplyTerraformJob
+      # Job to Install Terraform
+      - job: InstallTerraformJob
         steps:
-          # Install Terraform
           - script: |
               echo "Installing Terraform"
               wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
@@ -25,7 +25,10 @@ stages:
               terraform -version  # Verify Terraform installation
             displayName: 'Install Terraform'
 
-          # Install AWS CLI v2
+      # Job to Install AWS CLI v2
+      - job: InstallAWSCLIJob
+        dependsOn: InstallTerraformJob  # Make sure AWS CLI installs after Terraform
+        steps:
           - script: |
               echo "Installing AWS CLI v2"
               # Update the package index
@@ -47,7 +50,10 @@ stages:
               aws --version
             displayName: 'Install AWS CLI v2'
 
-          # Configure AWS CLI with the pipeline variables for access and secret key
+      # Job to Configure AWS CLI
+      - job: ConfigureAWSCLIJob
+        dependsOn: InstallAWSCLIJob  # Ensure this job runs after AWS CLI is installed
+        steps:
           - script: |
               echo "Configuring AWS CLI with provided credentials"
               export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
@@ -63,6 +69,10 @@ stages:
               aws sts get-caller-identity
             displayName: 'Configure AWS CLI'
 
+      # Job to Initialize and Apply Terraform
+      - job: TerraformApplyJob
+        dependsOn: ConfigureAWSCLIJob
+        steps:
           # Terraform Init
           - script: |
               terraform init
