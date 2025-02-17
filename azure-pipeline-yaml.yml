@@ -112,7 +112,6 @@ stages:
           # Manual Approval for Destroying Resources
           - task: ManualValidation@0
             inputs:
-              notificationLevel: 'Critical'
               notifyUsers: |
                 $(thegokulraj@gmail.com)
               instructions: 'Please review the resources created by Terraform. Approve or reject the destruction of resources.'
