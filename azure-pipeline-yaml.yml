@@ -97,22 +97,31 @@ stages:
               terraform apply -auto-approve tfplan
             displayName: 'Terraform Apply'
 
-  # Stage to Wait (Sleep) for 5 minutes
+  # Stage to Wait (Sleep) for 160 seconds and Destroy Resources Automatically
   - stage: WaitAndDestroy
     dependsOn: TerraformApply
     jobs:
       - job: WaitAndDestroyJob
         steps:
-          # Sleep for 5 minutes (300 seconds)
+          # Sleep for 160 seconds (2 minutes 40 seconds)
           - script: |
-              echo "Waiting for 2 minutes before approval for destruction..."
-              sleep 120  # Sleep for 2 minutes (300 seconds)
-            displayName: 'Wait for 2 Minutes'
-          # Initialize Terraform again to ensure the lock file is up-to-date
+              echo "Waiting for 160 seconds before destroying resources..."
+              sleep 160  # Sleep for 160 seconds
+            displayName: 'Wait for 160 Seconds'
+
+          # Re-initialize Terraform to ensure the lock file is up-to-date
           - script: |
               terraform init
             displayName: 'Re-Initialize Terraform'
-          # Destroy Terraform Resources
+
+          # Debugging step: Check Terraform Plan with -destroy flag
           - script: |
+              terraform plan -destroy -out=tfdestroyplan
+              terraform show tfdestroyplan
+            displayName: 'Terraform Plan for Destruction (Debug)'
+
+          # Destroy Terraform Resources Automatically
+          - script: |
+              export TF_LOG=DEBUG  # Enable debug logging for more verbose output
               terraform destroy -auto-approve
-            displayName: 'Destroy Terraform Resources'
+            displayName: 'Destroy Terraform Resources Automatically'
