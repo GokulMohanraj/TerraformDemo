@@ -1,7 +1,6 @@
 provider "aws" {
   region = "ap-south-1"
 }
-
 # create vpc
 resource "aws_vpc" "terraform_vpc" {
   cidr_block = "10.0.0.0/16"
@@ -68,6 +67,7 @@ resource "aws_instance" "demo" {
   instance_type = var.instance_type
   vpc_security_group_ids = [aws_security_group.terraform_security_group.id]
   subnet_id = aws_subnet.terraform_subnet.id
+  associate_public_ip_address = true
 
   tags = {
     Name = "Instance_created_by_Azure_DevOps_pipeline"
