@@ -12,32 +12,55 @@ variables:
   AWS_DEFAULT_REGION: 'ap-south-1'
 
 stages:
-  - stage: InstallTerraform
+  - stage: InstallAndApplyTerraform
     jobs:
-      - job: InstallTerraformJob
+      - job: InstallAndApplyTerraformJob
         steps:
+          # Install Terraform
           - script: |
-              # Install Terraform
+              echo "Installing Terraform"
               wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
               echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
               sudo apt update && sudo apt install terraform -y
               terraform -version  # Verify Terraform installation
             displayName: 'Install Terraform'
-  
-  - stage: TerraformApply
-    dependsOn: InstallTerraform
-    jobs:
-      - job: TerraformApplyJob
-        steps:
-          # Set AWS credentials via environment variables directly within the script
+
+          # Install AWS CLI v2
           - script: |
-              export AWS_ACCESS_KEY_ID=$(Access_key)
-              export AWS_SECRET_ACCESS_KEY=$(Secret_key)
+              echo "Installing AWS CLI v2"
+              # Update the package index
+              sudo apt update
+
+              # Install dependencies
+              sudo apt install unzip -y
+
+              # Download the AWS CLI version 2 installer
+              curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+              # Unzip the installer
+              unzip awscliv2.zip
+
+              # Run the installer
+              sudo ./aws/install
+
+              # Verify AWS CLI installation
+              aws --version
+            displayName: 'Install AWS CLI v2'
+
+          # Configure AWS CLI with the pipeline variables for access and secret key
+          - script: |
+              echo "Configuring AWS CLI with provided credentials"
+              export AWS_ACCESS_KEY_ID=$(AWS_ACCESS_KEY_ID)
+              export AWS_SECRET_ACCESS_KEY=$(AWS_SECRET_ACCESS_KEY)
               export AWS_DEFAULT_REGION=$(AWS_DEFAULT_REGION)
+
+              # Run aws configure to set up credentials (non-interactive)
+              aws configure set aws_access_key_id $(AWS_ACCESS_KEY_ID)
+              aws configure set aws_secret_access_key $(AWS_SECRET_ACCESS_KEY)
+              aws configure set region $(AWS_DEFAULT_REGION)
 
               # Verify AWS CLI credentials
               aws sts get-caller-identity
-
             displayName: 'Configure AWS CLI'
 
           # Terraform Init
