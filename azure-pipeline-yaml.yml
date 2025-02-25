@@ -99,7 +99,7 @@ stages:
               EOF
 
               # Initialize Terraform with the backend configuration
-              terraform init
+              terraform init -upgrade
             displayName: 'Initialize Terraform with Backend'
 
           # Terraform Plan
