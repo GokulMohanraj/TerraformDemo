@@ -113,12 +113,18 @@ stages:
             displayName: 'Terraform Apply'
 
   # Stage to Destroy Terraform Resources
-  #- stage: TerraformDestroy
-  #  dependsOn: ManualApproval  # Make sure this only runs after approval
-  #  jobs:
-  #    - job: TerraformDestroyJob
-  #      steps:
-  #        # Terraform Destroy
-  #        - script: |
-  #            terraform destroy -auto-approve
-  #          displayName: 'Terraform Destroy'
+  - stage: TerraformDestroy
+    dependsOn: TerraformApply  # Ensures TerraformApply runs first
+    jobs:
+      - job: TerraformDestroyJob
+        steps:
+          # Wait for 5 minutes before continuing
+          - script: |
+              echo "Waiting for 5 minutes before destroying resources..."
+              sleep 300  # Sleep for 5 minutes (300 seconds)
+            displayName: 'Wait for 5 minutes'
+
+          # Terraform Destroy
+          - script: |
+              terraform destroy -auto-approve
+            displayName: 'Terraform Destroy'
