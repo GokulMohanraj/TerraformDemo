@@ -10,6 +10,8 @@ variables:
   AWS_ACCESS_KEY_ID: $(Access_key)
   AWS_SECRET_ACCESS_KEY: $(Secret_key)
   AWS_DEFAULT_REGION: 'ap-south-1'
+  TERRAFORM_STATE_BUCKET: "terraform-backend-db"
+  TERRAFORM_STATE_KEY: "terraform/terraform.tfstate"
 
 stages:
   # Stage to Install Terraform
@@ -82,10 +84,24 @@ stages:
     jobs:
       - job: TerraformApplyJob
         steps:
-          # Terraform Init
+          # Configure Terraform Backend to use S3 for state
           - script: |
+              echo "Configuring Terraform backend"
+              cat <<EOF > backend.tf
+              terraform {
+                backend "s3" {
+                  bucket = "$(TERRAFORM_STATE_BUCKET)"
+                  key    = "$(TERRAFORM_STATE_KEY)"
+                  region = "$(AWS_DEFAULT_REGION)"
+                  dynamodb_table = "$(DYNAMODB_TABLE)"  # Optional: Lock the state with DynamoDB
+                  encrypt = true
+                }
+              }
+              EOF
+
+              # Initialize Terraform with the backend configuration
               terraform init
-            displayName: 'Initialize Terraform'
+            displayName: 'Initialize Terraform with Backend'
 
           # Terraform Plan
           - script: |
@@ -96,3 +112,25 @@ stages:
           - script: |
               terraform apply -auto-approve tfplan
             displayName: 'Terraform Apply'
+
+  # Stage to Approve Deletion
+  - stage: ManualApproval
+    jobs:
+      - job: ManualApprovalJob
+        steps:
+          - task: ManualIntervention@0
+            inputs:
+              notificationMessage: 'Please approve to delete the resources created by Terraform.'
+              instructions: 'Click Approve to delete the instance.'
+            displayName: 'Manual Approval for Resource Deletion'
+
+  # Stage to Destroy Terraform Resources
+  - stage: TerraformDestroy
+    dependsOn: ManualApproval  # Make sure this only runs after approval
+    jobs:
+      - job: TerraformDestroyJob
+        steps:
+          # Terraform Destroy
+          - script: |
+              terraform destroy -auto-approve
+            displayName: 'Terraform Destroy'
