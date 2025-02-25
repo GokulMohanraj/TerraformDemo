@@ -12,6 +12,7 @@ variables:
   AWS_DEFAULT_REGION: 'ap-south-1'
   TERRAFORM_STATE_BUCKET: "terraform-backend-db"
   TERRAFORM_STATE_KEY: "terraform/terraform.tfstate"
+  LOCK_FILE_S3_KEY: "terraform/.terraform.lock.hcl" 
 
 stages:
   # Stage to Install Terraform
@@ -102,6 +103,11 @@ stages:
               terraform init -upgrade
             displayName: 'Initialize Terraform with Backend'
 
+          - script: |
+              echo "Downloading .terraform.lock.hcl from S3"
+              aws s3 cp s3://$(TERRAFORM_STATE_BUCKET)/$(LOCK_FILE_S3_KEY) .terraform.lock.hcl || echo "No lock file found, continuing with new initialization."
+            displayName: 'Download Terraform Lock File from S3'
+
           # Terraform Plan
           - script: |
               terraform plan -out=tfplan
@@ -124,6 +130,11 @@ stages:
               sleep 300  # Sleep for 5 minutes (300 seconds)
             displayName: 'Wait for 5 minutes'
 
+          - script: |
+              echo "Uploading .terraform.lock.hcl to S3"
+              aws s3 cp .terraform.lock.hcl s3://$(TERRAFORM_STATE_BUCKET)/$(LOCK_FILE_S3_KEY)
+            displayName: 'Upload Terraform Lock File to S3'
+            
           # Terraform Destroy
           - script: |
               terraform destroy -auto-approve
