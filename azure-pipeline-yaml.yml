@@ -93,7 +93,6 @@ stages:
                   bucket = "$(TERRAFORM_STATE_BUCKET)"
                   key    = "$(TERRAFORM_STATE_KEY)"
                   region = "$(AWS_DEFAULT_REGION)"
-                  dynamodb_table = "$(DYNAMODB_TABLE)"  # Optional: Lock the state with DynamoDB
                   encrypt = true
                 }
               }
@@ -118,7 +117,7 @@ stages:
     jobs:
       - job: ManualApprovalJob
         steps:
-          - task: ManualIntervention@0
+          - task: ManualIntervention@2
             inputs:
               notificationMessage: 'Please approve to delete the resources created by Terraform.'
               instructions: 'Click Approve to delete the instance.'
