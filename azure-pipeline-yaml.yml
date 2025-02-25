@@ -103,11 +103,11 @@ stages:
               terraform init -upgrade
             displayName: 'Initialize Terraform with Backend'
 
-          - script: |
-              echo "Downloading .terraform.lock.hcl from S3"
-              aws s3 cp s3://$(TERRAFORM_STATE_BUCKET)/$(LOCK_FILE_S3_KEY) .terraform.lock.hcl || echo "No lock file found, continuing with new initialization."
-            displayName: 'Download Terraform Lock File from S3'
-
+#          - script: |
+#              echo "Downloading .terraform.lock.hcl from S3"
+#              aws s3 cp s3://$(TERRAFORM_STATE_BUCKET)/$(LOCK_FILE_S3_KEY) .terraform.lock.hcl || echo "No lock file found, continuing with new initialization."
+#            displayName: 'Download Terraform Lock File from S3'
+#
           # Terraform Plan
           - script: |
               terraform plan -out=tfplan
@@ -118,24 +118,24 @@ stages:
               terraform apply -auto-approve tfplan
             displayName: 'Terraform Apply'
 
-  # Stage to Destroy Terraform Resources
-  - stage: TerraformDestroy
-    dependsOn: TerraformApply  # Ensures TerraformApply runs first
-    jobs:
-      - job: TerraformDestroyJob
-        steps:
-          # Wait for 5 minutes before continuing
-          - script: |
-              echo "Waiting for 5 minutes before destroying resources..."
-              sleep 300  # Sleep for 5 minutes (300 seconds)
-            displayName: 'Wait for 5 minutes'
+#  # Stage to Destroy Terraform Resources
+#  - stage: TerraformDestroy
+#    dependsOn: TerraformApply  # Ensures TerraformApply runs first
+#    jobs:
+#      - job: TerraformDestroyJob
+#        steps:
+#          # Wait for 5 minutes before continuing
+#          - script: |
+#              echo "Waiting for 5 minutes before destroying resources..."
+#              sleep 300  # Sleep for 5 minutes (300 seconds)
+#            displayName: 'Wait for 5 minutes'
 
-          - script: |
-              echo "Uploading .terraform.lock.hcl to S3"
-              aws s3 cp .terraform.lock.hcl s3://$(TERRAFORM_STATE_BUCKET)/$(LOCK_FILE_S3_KEY)
-            displayName: 'Upload Terraform Lock File to S3'
-            
-          # Terraform Destroy
-          - script: |
-              terraform destroy -auto-approve
-            displayName: 'Terraform Destroy'
+#          - script: |
+#              echo "Uploading .terraform.lock.hcl to S3"
+#              aws s3 cp .terraform.lock.hcl s3://$(TERRAFORM_STATE_BUCKET)/$(LOCK_FILE_S3_KEY)
+#            displayName: 'Upload Terraform Lock File to S3'
+
+#          # Terraform Destroy
+#          - script: |
+#              terraform destroy -auto-approve
+#            displayName: 'Terraform Destroy'
