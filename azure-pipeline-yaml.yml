@@ -112,24 +112,13 @@ stages:
               terraform apply -auto-approve tfplan
             displayName: 'Terraform Apply'
 
-  # Stage to Approve Deletion
-  - stage: ManualApproval
-    jobs:
-      - job: ManualApprovalJob
-        steps:
-          - task: ManualIntervention@2
-            inputs:
-              notificationMessage: 'Please approve to delete the resources created by Terraform.'
-              instructions: 'Click Approve to delete the instance.'
-            displayName: 'Manual Approval for Resource Deletion'
-
   # Stage to Destroy Terraform Resources
-  - stage: TerraformDestroy
-    dependsOn: ManualApproval  # Make sure this only runs after approval
-    jobs:
-      - job: TerraformDestroyJob
-        steps:
-          # Terraform Destroy
-          - script: |
-              terraform destroy -auto-approve
-            displayName: 'Terraform Destroy'
+  #- stage: TerraformDestroy
+  #  dependsOn: ManualApproval  # Make sure this only runs after approval
+  #  jobs:
+  #    - job: TerraformDestroyJob
+  #      steps:
+  #        # Terraform Destroy
+  #        - script: |
+  #            terraform destroy -auto-approve
+  #          displayName: 'Terraform Destroy'
